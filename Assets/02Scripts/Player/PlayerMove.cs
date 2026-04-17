@@ -2,17 +2,94 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMove : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+
+    [Header("Move Setting")]
+    [SerializeField] private float moveSpeed = 7f;
+    [SerializeField] private float rotateSpeed = 10f;
+
+    private float gravity = 9.81f;
+
+    private CharacterController cc;
+    private IInputHandler inputHandler;
+    private Vector3 velocity;
+    private Camera cam;
+
+    private void Awake()
     {
-        
+        cc = GetComponent<CharacterController>();
+        if (cc == null) Debug.LogWarning("PlayerMove - Failed to Load CharacterController");
+
+        inputHandler = GetComponent<IInputHandler>();
+        if (inputHandler == null) Debug.LogWarning("PlayerMove - Failed to Load InputHandler");
+
+        cam = Camera.main;
     }
 
-    // Update is called once per frame
-    void Update()
+
+    private void Update()
     {
-        
+        if (cc == null || inputHandler == null) return;
+
+        // 보정된 각도
+        Vector3 appliedDir = GetCameraInput();
+
+        if (appliedDir.sqrMagnitude > 0.01f)
+        {
+            Movement(appliedDir);
+        }
+
     }
+
+
+    // 플레이어 움직임
+    private void Movement(Vector3 moveDir)
+    {
+        // 이동
+        cc.Move(moveDir * moveSpeed * Time.deltaTime);
+
+        // 회전
+        Quaternion rot = Quaternion.LookRotation(moveDir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotateSpeed * Time.deltaTime);
+    }
+
+
+    // 카메라 보정
+    private Vector3 GetCameraInput()
+    {
+        Vector2 input = inputHandler.GetMovement;
+        if (input.sqrMagnitude < 0.01f) return Vector3.zero;
+
+        Transform camTrans = cam.transform;
+        Vector3 forward = camTrans.forward;
+        Vector3 right = camTrans.right;
+
+        // y값 무시 후 정규화
+        forward.y = 0;
+        right.y = 0;
+        forward.Normalize();
+        right.Normalize();
+
+        return (forward * input.y + right * input.x).normalized;
+
+    }
+
+
+    // 중력
+    private void ApplyGravity()
+    {
+        if (cc.isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // 바닥으로 누름
+        }
+        else
+        {
+            velocity.y -= gravity * Time.deltaTime;
+        }
+
+        cc.Move(velocity * Time.deltaTime);
+    }
+
 }

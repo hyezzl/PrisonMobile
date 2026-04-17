@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class JoystickInputHandler : MonoBehaviour, IInputHandler
 {
-    [SerializeField] private FloatingJoystick joystick;
+    [SerializeField] private DynamicJoystick joystick;
 
     public Vector2 GetMovement => joystick != null ? joystick.Direction : Vector2.zero;
 }
