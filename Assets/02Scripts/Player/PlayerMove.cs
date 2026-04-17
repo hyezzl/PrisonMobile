@@ -5,63 +5,43 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMove : MonoBehaviour
 {
-
     [Header("Move Setting")]
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float rotateSpeed = 10f;
-
     private float gravity = 9.81f;
 
     private CharacterController cc;
-    private IInputHandler inputHandler;
-    private Vector3 velocity;
     private Camera cam;
+    private Vector3 velocity;
 
     private void Awake()
     {
         cc = GetComponent<CharacterController>();
         if (cc == null) Debug.LogWarning("PlayerMove - Failed to Load CharacterController");
 
-        inputHandler = GetComponent<IInputHandler>();
-        if (inputHandler == null) Debug.LogWarning("PlayerMove - Failed to Load InputHandler");
-
         cam = Camera.main;
     }
 
 
-    private void Update()
-    {
-        if (cc == null || inputHandler == null) return;
-
-        // 보정된 각도
-        Vector3 appliedDir = GetCameraInput();
-
-        if (appliedDir.sqrMagnitude > 0.01f)
-        {
-            Movement(appliedDir);
-        }
-
-    }
-
-
     // 플레이어 움직임
-    private void Movement(Vector3 moveDir)
+    public void Movement(Vector2 input)
     {
-        // 이동
-        cc.Move(moveDir * moveSpeed * Time.deltaTime);
+        Vector3 moveDir = GetCameraInput(input);
 
-        // 회전
-        Quaternion rot = Quaternion.LookRotation(moveDir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotateSpeed * Time.deltaTime);
+        if (moveDir.sqrMagnitude > 0.01f)
+        { 
+            cc.Move(moveDir * moveSpeed * Time.deltaTime);
+            
+            // 회전
+            Quaternion rot = Quaternion.LookRotation(moveDir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, rotateSpeed * Time.deltaTime);
+        }
     }
 
 
     // 카메라 보정
-    private Vector3 GetCameraInput()
+    private Vector3 GetCameraInput(Vector2 input)
     {
-        Vector2 input = inputHandler.GetMovement;
-        if (input.sqrMagnitude < 0.01f) return Vector3.zero;
-
         Transform camTrans = cam.transform;
         Vector3 forward = camTrans.forward;
         Vector3 right = camTrans.right;
@@ -78,7 +58,7 @@ public class PlayerMove : MonoBehaviour
 
 
     // 중력
-    private void ApplyGravity()
+    public void ApplyGravity()
     {
         if (cc.isGrounded && velocity.y < 0)
         {
