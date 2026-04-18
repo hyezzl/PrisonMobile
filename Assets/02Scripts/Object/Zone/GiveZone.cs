@@ -19,9 +19,7 @@ public class GiveZone : BaseZone
 
     protected override void PlayLogic(PlayerInteractHandler player)
     {
-        Debug.Log("1111");
         if (player.stackManager == null) return;
-        Debug.Log("2222");
 
         // 플레이어의 스택에서 targetItemID와 일치하는 아이템을 전부
         List<GameObject> items = player.stackManager.PopAllItems(targetItemID);
