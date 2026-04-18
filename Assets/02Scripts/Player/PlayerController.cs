@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Windows;
 
 
 public enum PlayerState
@@ -21,6 +20,7 @@ public class PlayerController : MonoBehaviour
 
     // 플레이어 현 상태
     private PlayerState curState;
+    private int curLevel = 0;
 
     // 참조
     private PlayerMove pm;
@@ -57,6 +57,10 @@ public class PlayerController : MonoBehaviour
 
         // 애니메이션 갱신
         anim.UpdateAnimation(existInput, isInteract);
+
+
+        // 상태알림이
+        if (Input.GetKeyDown(KeyCode.F1)) { AlarmState(); }
     }
 
 
@@ -83,9 +87,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void AlarmState()
+    {
+        Debug.Log($"현재 레벨 : {curLevel}");
+        Debug.Log($"현재 상태 : {curState}");
+    }
+
 
     // 외부에서 상호작용 상태 변경
     public void SetInteract(bool value) => isInteract = value;
+
+
+    // 레벨에 따른 최대 수용량
+    public int GetMax()
+    {
+        return curLevel * 10 + 10;
+    }
+
+    public int GetLevel()
+    { return curLevel; }
+
+    
 
 
 }
