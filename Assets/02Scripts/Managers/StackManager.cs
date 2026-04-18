@@ -4,6 +4,19 @@ using DG.Tweening;
 using UnityEngine;
 
 
+[System.Serializable]
+public class StackData
+{
+    public GameObject obj;
+    public int itemID;
+
+    public StackData(GameObject obj, int itemID)
+    {
+        this.obj = obj;
+        this.itemID = itemID;
+    }
+}
+
 /// <summary>
 /// 쌓기로직
 /// </summary>
@@ -11,17 +24,23 @@ public class StackManager : MonoBehaviour
 {
     [Header("Setting")]
     [SerializeField] private Transform stackPivot;
-    [SerializeField] private float distY = 0.2f;    // y간의 간격
+    [SerializeField] private float distY = 0.2f;    // 아이템간의 y간격
     [SerializeField] private float flyDuration = 0.5f;
 
     [Header("UI Ref")]
     [SerializeField] private GameObject maxText;
     private Coroutine maxUICoroutine;
 
+    // 현재 가지고 있는 아이템
+    private List<StackData> stackRes = new List<StackData>();
+
+    // ID별 풀
+    private Dictionary<int, Stack<GameObject>> itemPools = new Dictionary<int, Stack<GameObject>>();
+
 
     // 오브젝트풀
-    private Stack<GameObject> pool = new Stack<GameObject>();
-    private List<GameObject> stackRes = new List<GameObject>();     // 현재 등에 있는 자원
+    //private Stack<GameObject> pool = new Stack<GameObject>();
+    //private List<GameObject> stackRes = new List<GameObject>();     // 현재 등에 있는 자원
 
     private PlayerController pc;
 
@@ -37,7 +56,7 @@ public class StackManager : MonoBehaviour
 
 
     // Stack
-    public void StackPrefab(GameObject prefab, Vector3 startPos)
+    public void StackPrefab(GameObject prefab, int itemID, Vector3 startPos)
     {
         if (IsFull) {
             // 더이상 루트X
@@ -49,11 +68,13 @@ public class StackManager : MonoBehaviour
         }
 
         // 풀링
-        GameObject obj = GetPooling(prefab);
+        GameObject obj = GetPooling(prefab, itemID);
+
+        // 리스트에 데이터 추가
+        stackRes.Add(new StackData(obj, itemID));
 
         // 목적지 로컬 위치
-        Vector3 targetPos = new Vector3(0, stackRes.Count * distY, 0);
-        stackRes.Add(obj);
+        Vector3 targetPos = new Vector3(0, (stackRes.Count -1) * distY, 0);
 
         // 연출
         CollectAnimate(obj, startPos, targetPos);
@@ -86,15 +107,70 @@ public class StackManager : MonoBehaviour
 
     }
 
-
-
-    // 오브젝트 풀링 메서드
-    private GameObject GetPooling(GameObject prefab)
+    // ==========================================
+    // 납부존에서 특정 자원 한번에 가져감
+    public List<GameObject> PopAllItems(int targetItemID)
     {
-        GameObject obj;
-        if (pool.Count > 0)
+        List<StackData> extracted = stackRes.FindAll(x => x.itemID == targetItemID);
+
+        if (extracted.Count == 0) return null; // 가져갈 게 없으면 0 반환
+
+        // 리스트에서 제거
+        //stackRes.RemoveAll(x => x.itemID == targetItemID);
+        //RealignStack();
+        // 4. 골라낸 아이템들을 납부존으로 촤르르륵 날려보내기
+        //for (int i = 0; i < extracted.Count; i++)
+        //{
+        //    GameObject obj = extracted[i].obj;
+        //    obj.transform.SetParent(null); // 부모 해제
+
+        //    obj.transform.DOJump(targetPivot.position, 1.5f, 1, 0.3f)
+        //        .SetDelay(i * 0.05f)
+        //        .SetEase(Ease.InQuad)
+        //        .OnComplete(() => {
+        //            ReturnToPool(obj, targetItemID); // 도착하면 풀로 반환
+        //        });
+        //}
+
+        //return extracted.Count;     // 보낸 갯수 리턴
+
+        // 반환할 실제 오브젝트들만 따로 리스트
+        List<GameObject> itemsToGive = new List<GameObject>();
+        foreach (var data in extracted)
         {
-            obj = pool.Pop();
+            itemsToGive.Add(data.obj);
+        }
+
+        // 실제 스택에서 제거하고 정렬
+        stackRes.RemoveAll(x => x.itemID == targetItemID);
+        RealignStack();
+
+        return itemsToGive;
+
+    }
+
+    // 스택아이템이 빠졌으면 아래로 정렬
+    private void RealignStack()
+    {
+        for (int i = 0; i < stackRes.Count; i++)
+        {
+            Vector3 targetLocalPos = new Vector3(0, i * distY, 0);
+
+            stackRes[i].obj.transform.DOLocalMove(targetLocalPos, 0.2f).SetEase(Ease.OutQuad);
+        }
+    }
+
+
+    // 오브젝트 풀링 
+    private GameObject GetPooling(GameObject prefab, int itemID)
+    {
+        if (!itemPools.ContainsKey(itemID))
+            itemPools[itemID] = new Stack<GameObject>();
+
+        GameObject obj;
+        if (itemPools[itemID].Count > 0)
+        {
+            obj = itemPools[itemID].Pop();
             obj.SetActive(true);
         }
         else
@@ -102,22 +178,14 @@ public class StackManager : MonoBehaviour
             obj = Instantiate(prefab, stackPivot);
         }
         return obj;
-    }    
+    }
 
-
-
-    // 반환
-    public void PopStack()
+    // 풀 반환
+    private void ReturnToPool(GameObject obj, int itemID)
     {
-        if (stackRes.Count == 0) return;
-
-        int last = stackRes.Count - 1;
-
-        GameObject obj = stackRes[last];
-        stackRes.RemoveAt(last);
-
         obj.SetActive(false);
-        pool.Push(obj);     // 풀에반환
+        obj.transform.SetParent(stackPivot); // 풀에 있을 땐 플레이어 자식으로 정리
+        itemPools[itemID].Push(obj);
     }
 
 

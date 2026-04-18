@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// 자원은 플레이어 근처와 닿으면 Interact,
+/// Zone은 플레이어의 몸이 실제구역안에 들어가면 Interact
+/// </summary>
+/// 
 public class PlayerInteractHandler : MonoBehaviour
 {
     // 같은 오브젝트에 있는 컴포넌트를 미리 들고있음 (허브)
@@ -12,6 +17,7 @@ public class PlayerInteractHandler : MonoBehaviour
     [SerializeField] private float range = 1.8f;       // 감지 범위
     [SerializeField] private float interactCooldown = 1.0f;    // 채집 간격 (1초)
     [SerializeField] private LayerMask targetLayer;    // 자원 레이어 
+    [SerializeField] private LayerMask zoneLayer;       // Zone 레이어
 
     private bool isInteract = false;
 
@@ -37,7 +43,7 @@ public class PlayerInteractHandler : MonoBehaviour
 
 
 
-
+    // 자원과의 Interact
     private IEnumerator InteractLoop()
     {
         isInteract = true;
@@ -78,6 +84,23 @@ public class PlayerInteractHandler : MonoBehaviour
         pc.SetInteract(false);
         isInteract = false;
     }
+
+    // Zone과의 Interact
+    private void OnTriggerStay(Collider other)
+    {
+        // 닿은 물체가 Zone 레이어인지 확인
+        if (((1 << other.gameObject.layer) & zoneLayer) != 0)
+        {
+            // 부딪힌 존(Zone)의 상호작용 인터페이스 가져오기
+            IActionTarget zone = other.GetComponent<IActionTarget>();
+
+            if (zone != null)
+            {
+                zone.Interact(this);
+            }
+        }
+    }
+
 
     private void OnDrawGizmos()
     {

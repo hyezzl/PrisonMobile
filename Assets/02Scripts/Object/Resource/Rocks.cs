@@ -12,6 +12,7 @@ public class Rocks : MonoBehaviour, IActionTarget
     [SerializeField] private GameObject stackPrefab;    // 시각프리팹정보 저장
 
 
+    private int itemID = 1001;      // 돌의 고유 아이템 ID
     private MeshRenderer mr;
     private Collider col;
 
@@ -46,7 +47,7 @@ public class Rocks : MonoBehaviour, IActionTarget
         if (player == null || player.stackManager == null) return;
 
         // 스택 매니저에 프리팹/현재 위치 전달
-        player.stackManager.StackPrefab(stackPrefab, transform.position);
+        player.stackManager.StackPrefab(stackPrefab, itemID, transform.position);
 
 
         // 비활성화
