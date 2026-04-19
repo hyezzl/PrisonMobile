@@ -143,6 +143,13 @@ public class StackManager : MonoBehaviour
 
         // 해당 아이템 전용 피봇(위치)으로 날려보냄
         CollectAnimate(obj, obj.transform.position, targetLocalPos, targetPivot);
+
+        // UI 업데이트
+        if (itemID == moneyID)
+        {
+            int totalMoney = stackRes.FindAll(x => x.itemID == moneyID).Count;
+            UIManager.Instance.UpdateMoneyUI(totalMoney);
+        }
     }
 
 
@@ -188,9 +195,52 @@ public class StackManager : MonoBehaviour
         // 만약 돌을 다 썼다면 돈 기둥을 1번 피벗으로 당겨옴
         if (targetItemID == stoneID) UpdateMoneyColumnPivot();
 
-        return itemsToGive;
+        // UI업데이트
+        if (targetItemID == moneyID)
+        {
+            UIManager.Instance.UpdateMoneyUI(0); // 다 줬으니까 0으로
+        }
 
+        return itemsToGive;
     }
+
+    // 필요한 만큼만 POP
+    public List<GameObject> PopItems(int targetItemID, int count)
+    {
+        // 해당 ID의 아이템만 필터링
+        List<StackData> allOfThisType = stackRes.FindAll(x => x.itemID == targetItemID);
+
+        // 부족하면 가진 만큼만 주거나, 혹은 아예 안 주거나 선택 (여기선 가진 만큼만)
+        int amountToGive = Mathf.Min(count, allOfThisType.Count);
+        if (amountToGive <= 0) return null;
+
+        List<GameObject> itemsToGive = new List<GameObject>();
+
+        for (int i = 0; i < amountToGive; i++)
+        {
+            // 리스트의 맨 뒤(가장 위)에 있는 것부터 꺼냄
+            StackData data = allOfThisType[allOfThisType.Count - 1 - i];
+            itemsToGive.Add(data.obj);
+            stackRes.Remove(data); // 실제 전체 리스트에서 제거
+        }
+
+        // 남은 아이템들 아래로 정렬
+        RealignStack(targetItemID);
+
+        // 돌을 썼을 때 돈 기둥 위치 체크 (기존 로직 활용)
+        if (targetItemID == stoneID) UpdateMoneyColumnPivot();
+
+        // UI 업데이트
+        if (targetItemID == moneyID)
+        {
+            int remainingCount = stackRes.FindAll(x => x.itemID == moneyID).Count;
+            UIManager.Instance.UpdateMoneyUI(remainingCount);
+        }
+
+        return itemsToGive;
+    }
+
+
 
     // 스택아이템이 빠졌으면 아래로 정렬
     private void RealignStack(int itemID)
