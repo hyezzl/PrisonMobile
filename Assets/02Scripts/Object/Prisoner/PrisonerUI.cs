@@ -28,10 +28,19 @@ public class PrisonerUI : MonoBehaviour
     {
         // 수직으로 게이지 채우기
         fillImage.fillAmount = 0;
-        fillImage.DOFillAmount(1f, duration).OnComplete(() => {
+        fillImage.DOFillAmount(1f, duration).SetEase(Ease.Linear).OnComplete(() => {
+            //  게이지가 다 차면(수갑이 몸에 닿으면) 숫자를 갱신
             fillImage.fillAmount = 0;
+
+            int remaining = total - current;
+
             countText.text = (total - current).ToString();
             countText.transform.DOPunchScale(Vector3.one * 0.2f, 0.2f);
+
+            if (remaining <= 0)
+            {
+                Hide();
+            }
         });
     }
 }

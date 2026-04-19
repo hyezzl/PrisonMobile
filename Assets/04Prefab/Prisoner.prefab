@@ -272,7 +272,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ui: {fileID: 0}
-  moveDuration: 0.5
+  targetZone: {fileID: 0}
+  moneyPrefab: {fileID: 0}
   requiredHandcuffs: 0
   currentHandcuffs: 0
 --- !u!1 &5584185581118960524
@@ -453,7 +454,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ui: {fileID: 7010839396820434261}
-  moveDuration: 0.5
+  targetZone: {fileID: 0}
+  moneyPrefab: {fileID: 8383071319610435404, guid: 7fc4b3190065912428f626c76f59d312, type: 3}
   requiredHandcuffs: 0
   currentHandcuffs: 0
 --- !u!1 &7036223376668236763

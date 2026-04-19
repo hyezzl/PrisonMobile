@@ -15,7 +15,11 @@ public class PrisonerGiveZone : GiveZone
     public Transform givePivot;     // 수갑이 일렬로 깔릴 바닥 위치
     public Transform prisonLocation;  // 수갑 다 받은 죄수가 갈 곳
 
+    [Header("재화 설정")]
+    public MoneyTakeZone moneyTakeZone;
 
+
+    [HideInInspector]
     public List<Prisoner> waitingPrisoners = new List<Prisoner>();      // 현재 생성된 죄수 리스트
     private bool isDistributing = false;        // 현재 수갑 납부 중인지
 
@@ -26,6 +30,9 @@ public class PrisonerGiveZone : GiveZone
         {
             SpawnNewPrisoner();
         }
+
+        // 첫번째 죄수의 UI는 켜둠
+        waitingPrisoners[0].ShowRequestUI();
     }
 
     private void Update()
@@ -77,6 +84,9 @@ public class PrisonerGiveZone : GiveZone
         Prisoner prisoner = go.GetComponent<Prisoner>();
         prisoner.Init(); // 필요한 수갑 개수 랜덤 설정 (2~4개)
 
+        // 죄수인스턴스에 씬에 있는 MoneyTakeZone 주소 넣어줌
+        prisoner.targetZone = moneyTakeZone;
+
         // 일단 대기열 리스트에 추가
         waitingPrisoners.Add(prisoner);
 
@@ -93,14 +103,14 @@ public class PrisonerGiveZone : GiveZone
     private IEnumerator DistributeRoutine()
     {
         isDistributing = true;
-        float transferTime = 0.4f; // 던지는 속도
+        float transferTime = 0.35f; // 던지는 속도
 
         while (giveList.Count > 0 && waitingPrisoners.Count > 0)
         {
             Prisoner currentPrisoner = waitingPrisoners[0];
 
             currentPrisoner.ui.Show();
-            yield return new WaitForSeconds(0.2f);
+
 
             while (giveList.Count > 0 && !currentPrisoner.isSatisfied)
             {
@@ -118,14 +128,18 @@ public class PrisonerGiveZone : GiveZone
             // 3. 다 채웠으면 다음 죄수로 교체
             if (currentPrisoner.isSatisfied)
             {
+                yield return new WaitForSeconds(0.3f);      // 잠깐 여유둠
+
                 waitingPrisoners.RemoveAt(0);
                 currentPrisoner.GoToPrison(prisonLocation);
                 SpawnNewPrisoner();
                 SortPrisoners();
 
                 yield return new WaitForSeconds(0.6f); // 줄 당겨지는 시간 대기
-            }
 
+                if (waitingPrisoners.Count > 0)
+                    waitingPrisoners[0].ui.Show();
+            }
             yield return null;
         }
         isDistributing = false;

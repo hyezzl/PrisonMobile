@@ -974,6 +974,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8783306491909106419, guid: f02116c209ecd9e488fc4d2cd8996133, type: 3}
   m_PrefabInstance: {fileID: 161332397}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &167277925
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 167277926}
+  m_Layer: 8
+  m_Name: stackDummy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &167277926
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167277925}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.01, y: 0.09, z: -0.399}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1591546679}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &170094428
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8501,6 +8532,77 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d20cf0948717433499dfecfc6d1dee73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1591546678
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1591546679}
+  - component: {fileID: 1591546681}
+  - component: {fileID: 1591546680}
+  m_Layer: 8
+  m_Name: TakeZone04
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1591546679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591546678}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.42, y: 0, z: -14.53}
+  m_LocalScale: {x: 1.2817, y: 1, z: 1.9623}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 167277926}
+  m_Father: {fileID: 2107532461}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1591546680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591546678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2883cead717cb984aaa4b866042d6754, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetItemID: 0
+  interactionDelay: 0.1
+  stackPivot: {fileID: 167277926}
+  spacingY: 0.2
+--- !u!65 &1591546681
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591546678}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.1326604, y: 1, z: 0.576771}
+  m_Center: {x: 0.17279287, y: 0, z: -0.1542986}
 --- !u!1 &1595243731
 GameObject:
   m_ObjectHideFlags: 0
@@ -9652,6 +9754,7 @@ MonoBehaviour:
   queueStartPivot: {fileID: 141876612162028237}
   givePivot: {fileID: 1802742482}
   prisonLocation: {fileID: 1880400659}
+  moneyTakeZone: {fileID: 1591546680}
   waitingPrisoners: []
 --- !u!1001 &1776180585
 PrefabInstance:
@@ -12510,6 +12613,7 @@ Transform:
   - {fileID: 41469532}
   - {fileID: 1442574684}
   - {fileID: 1724488541}
+  - {fileID: 1591546679}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2143051643
@@ -13055,6 +13159,10 @@ PrefabInstance:
     - target: {fileID: 8383071319610435404, guid: 7fc4b3190065912428f626c76f59d312, type: 3}
       propertyPath: m_Name
       value: Money
+      objectReference: {fileID: 0}
+    - target: {fileID: 8383071319610435404, guid: 7fc4b3190065912428f626c76f59d312, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14352,6 +14460,11 @@ MonoBehaviour:
     itemID: 1002
     pivot: {fileID: 1554567682}
     maxCount: 20
+    distY: 0.2
+  - itemName: "\uB3C8"
+    itemID: 1003
+    pivot: {fileID: 1554567682}
+    maxCount: 100
     distY: 0.2
   flyDuration: 0.5
   maxText: {fileID: 825987518}

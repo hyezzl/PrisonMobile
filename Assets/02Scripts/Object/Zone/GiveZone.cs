@@ -14,6 +14,7 @@ public class GiveZone : BaseZone
     public float spacingY = 0.3f;  // 위로 쌓이는 간격
 
     // 납부존이 가진 아이템
+    [HideInInspector]
     public List<GameObject> giveList = new List<GameObject>();
 
 
