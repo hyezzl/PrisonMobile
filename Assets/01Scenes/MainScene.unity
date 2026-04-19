@@ -3008,6 +3008,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1066647101}
+  - {fileID: 1737591723}
   - {fileID: 1554567682}
   - {fileID: 737056441}
   m_Father: {fileID: 4416963338320951304}
@@ -5473,7 +5474,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1066647101}
   m_Layer: 0
-  m_Name: ResourcePivot
+  m_Name: ResourcePivot01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8578,7 +8579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2883cead717cb984aaa4b866042d6754, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetItemID: 0
+  targetItemID: 1003
   interactionDelay: 0.1
   stackPivot: {fileID: 167277926}
   spacingY: 0.2
@@ -9756,6 +9757,37 @@ MonoBehaviour:
   prisonLocation: {fileID: 1880400659}
   moneyTakeZone: {fileID: 1591546680}
   waitingPrisoners: []
+--- !u!1 &1737591722
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1737591723}
+  m_Layer: 0
+  m_Name: ResourcePivot02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1737591723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737591722}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.6673946, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 584443893}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1776180585
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14463,11 +14495,15 @@ MonoBehaviour:
     distY: 0.2
   - itemName: "\uB3C8"
     itemID: 1003
-    pivot: {fileID: 1554567682}
+    pivot: {fileID: 1066647101}
     maxCount: 100
     distY: 0.2
   flyDuration: 0.5
   maxText: {fileID: 825987518}
+  pivot01: {fileID: 1066647101}
+  pivot02: {fileID: 1737591723}
+  stoneID: 1001
+  moneyID: 1003
 --- !u!1 &4557281937152175151
 GameObject:
   m_ObjectHideFlags: 0

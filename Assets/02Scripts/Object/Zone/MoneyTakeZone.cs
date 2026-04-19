@@ -5,6 +5,24 @@ using UnityEngine;
 
 public class MoneyTakeZone : TakeZone
 {
+    protected override void PlayLogic(PlayerInteractHandler player)
+    {
+        // 1. µ∑¿Ã æ¯¿∏∏È ∏Æ≈œ
+        if (takeStack.Count <= 0) return;
+
+        if (player.stackManager.IsFull(targetItemID))
+        {
+            return;
+        }
+
+        // 3. µ∑ «œ≥™ ≤®≥ª±‚
+        GameObject money = takeStack.Pop();
+
+        player.stackManager.AddStack(money, targetItemID);
+
+        lastInteractionTime = Time.time;
+    }
+
     public void AddMoneyToStack(GameObject money, Vector3 targetLocalPos, float delay)
     {
         takeStack.Push(money);

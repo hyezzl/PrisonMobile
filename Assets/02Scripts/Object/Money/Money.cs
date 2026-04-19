@@ -4,5 +4,6 @@ using UnityEngine;
 
 public class Money : MonoBehaviour
 {
+    public int itemID = 1003;
     public int value = 10;      // °¡Ä¡
 }

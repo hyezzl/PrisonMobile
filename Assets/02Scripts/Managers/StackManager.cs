@@ -44,6 +44,15 @@ public class StackManager : MonoBehaviour
     [SerializeField] private GameObject maxText;
     private Coroutine maxUICoroutine;
 
+    [Header("레이어 피벗 설정")]
+    [SerializeField] private Transform pivot01; // 돌전용 + 우선순위 (플레이어에 더 가까움)
+    [SerializeField] private Transform pivot02;
+
+    [Header("ID 설정")]
+    [SerializeField] private int stoneID = 1001;
+    [SerializeField] private int moneyID = 1003;
+
+
     // 현재 가지고 있는 아이템
     private List<StackData> stackRes = new List<StackData>();
 
@@ -91,6 +100,9 @@ public class StackManager : MonoBehaviour
 
         var config = GetConfig(itemID); // 아이템정보
 
+        // 돌을 주웠을때, 돈을 가지고있다면 돈을 밀어냄
+        if (itemID == stoneID) UpdateMoneyColumnPivot(true);
+
         // 풀링
         GameObject obj = GetPooling(prefab, itemID, config.pivot);
 
@@ -115,15 +127,22 @@ public class StackManager : MonoBehaviour
 
         var config = GetConfig(itemID);
 
-        // 현재 이 종류의 아이템이 몇 개째인지 확인 (위치 계산용)
-        int currentTypeCount = stackRes.FindAll(x => x.itemID == itemID).Count;
-        stackRes.Add(new StackData(obj, itemID));
+        // 리스트에 넣기전에 돈 기둥을 체크해서 밀어냄
+        if (itemID == stoneID)
+        {
+            UpdateMoneyColumnPivot(true); // true: 강제로 밀어내기 모드
+        }
 
-        // 해당 아이템 전용 간격으로 위치 계산
-        Vector3 targetLocalPos = new Vector3(0, currentTypeCount * config.distY, 0);
+        stackRes.Add(new StackData(obj, itemID));       // 리스트에 추가
+
+        // 돌이면 무조건 pivot1, 돈이면 현재상황에 맞게
+        Transform targetPivot = (itemID == moneyID) ? GetCurrentMoneyPivot() : config.pivot;
+
+        int curCount = stackRes.FindAll(x => x.itemID == itemID).Count - 1;
+        Vector3 targetLocalPos = new Vector3(0, curCount * config.distY, 0);
 
         // 해당 아이템 전용 피봇(위치)으로 날려보냄
-        CollectAnimate(obj, obj.transform.position, targetLocalPos, config.pivot);
+        CollectAnimate(obj, obj.transform.position, targetLocalPos, targetPivot);
     }
 
 
@@ -166,6 +185,9 @@ public class StackManager : MonoBehaviour
         stackRes.RemoveAll(x => x.itemID == targetItemID);
         RealignStack(targetItemID);
 
+        // 만약 돌을 다 썼다면 돈 기둥을 1번 피벗으로 당겨옴
+        if (targetItemID == stoneID) UpdateMoneyColumnPivot();
+
         return itemsToGive;
 
     }
@@ -185,7 +207,7 @@ public class StackManager : MonoBehaviour
         }
     }
 
-
+    //===============================================
     // 오브젝트 풀링 
     private GameObject GetPooling(GameObject prefab, int itemID, Transform parent)
     {
@@ -214,10 +236,64 @@ public class StackManager : MonoBehaviour
         //itemPools[itemID].Push(obj);
     }
 
-    
+
+    //===============================================
+    // 돈-돌의 컬럼위치 변경
+    private Transform GetCurrentMoneyPivot()
+    {
+        // 돌이 하나라도 있으면 Pivot02, 없으면 Pivot01 반환
+        int stoneCount = stackRes.FindAll(x => x.itemID == stoneID).Count;
+        return (stoneCount > 0) ? pivot02 : pivot01;
+    }
+
+    private void UpdateMoneyColumnPivot()
+    {
+        Transform targetPivot = GetCurrentMoneyPivot();
+        var moneyItems = stackRes.FindAll(x => x.itemID == moneyID);
+
+        for (int i = 0; i < moneyItems.Count; i++)
+        {
+            GameObject obj = moneyItems[i].obj;
+            var config = GetConfig(moneyID);
+
+            // 부모 변경
+            obj.transform.SetParent(targetPivot);
+
+            // 부드럽게 새 피벗의 위치로 이동합니다.
+            Vector3 targetPos = new Vector3(0, i * config.distY, 0);
+            obj.transform.DOLocalMove(targetPos, 0.25f).SetEase(Ease.OutQuad);
+            obj.transform.DOLocalRotate(Vector3.zero, 0.25f);
+        }
+    }
+
+    private void UpdateMoneyColumnPivot(bool isForcing = false)
+    {
+        // 돌이 있거나, 지금 막 추가될 예정(isForcing)이면 Pivot02로 타겟 설정
+        int stoneCount = stackRes.FindAll(x => x.itemID == stoneID).Count;
+        Transform targetPivot = (stoneCount > 0 || isForcing) ? pivot02 : pivot01;
+
+        var moneyItems = stackRes.FindAll(x => x.itemID == moneyID);
+
+        for (int i = 0; i < moneyItems.Count; i++)
+        {
+            GameObject obj = moneyItems[i].obj;
+            var config = GetConfig(moneyID);
+
+            obj.transform.SetParent(targetPivot);
+
+            Vector3 targetPos = new Vector3(0, i * config.distY, 0);
+
+            // 트윈 충돌 방지
+            obj.transform.DOKill();
+            obj.transform.DOLocalMove(targetPos, 0.25f).SetEase(Ease.OutQuad);
+            obj.transform.DOLocalRotate(Vector3.zero, 0.25f);
+        }
+    }
 
 
 
+
+    //===============================================
     // MAX UI
     private IEnumerator ShowMaxUI()
     {
