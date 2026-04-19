@@ -19,7 +19,7 @@ public class MachineProcessor : MonoBehaviour
     private void Update()
     {
         // 입력 구역에 돌이 있고, 가공 중이 아니라면 가공 시작
-        if (!isProcessing && inputZone.giveQueue.Count > 0)
+        if (!isProcessing && inputZone.giveList.Count > 0)
         {
             StartCoroutine(ProcessRoutine());
         }
@@ -30,12 +30,16 @@ public class MachineProcessor : MonoBehaviour
         isProcessing = true;
 
         // 1. 입력 구역(GiveZone)에서 돌 하나 빼기
-        GameObject stone = inputZone.giveQueue.Dequeue();
+        GameObject stone = inputZone.OnGetItem();
 
-        // 돌이 사라지는 연출 (작아지면서 삭제)
-        stone.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => {
-            Destroy(stone);
-        });
+        if (stone != null)
+        {
+            // 돌이 가공기 안으로 빨려 들어가는 느낌의 연출
+            stone.transform.DOMove(transform.position, 0.2f);
+            stone.transform.DOScale(Vector3.zero, 0.2f).OnComplete(() => {
+                Destroy(stone);
+            });
+        }
 
         // 2. 가공 시간 대기 (0.5초)
         yield return new WaitForSeconds(processTime);

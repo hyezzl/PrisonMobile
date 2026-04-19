@@ -14,7 +14,7 @@ public class GiveZone : BaseZone
     public float spacingY = 0.3f;  // 위로 쌓이는 간격
 
     // 납부존이 가진 아이템
-    public Queue<GameObject> giveQueue = new Queue<GameObject>();
+    public List<GameObject> giveList = new List<GameObject>();
 
 
     protected override void PlayLogic(PlayerInteractHandler player)
@@ -37,12 +37,10 @@ public class GiveZone : BaseZone
         for (int i = 0; i < items.Count; i++)
         {
             GameObject item = items[i];
-
-            // 큐에 넣어서 납부존 소유로 만듦
-            giveQueue.Enqueue(item);
+            giveList.Add(item); // 리스트 끝에 추가
 
             // 현재 납부존에 쌓인 총 개수를 기준으로 위치 계산 (0번부터 시작하므로 -1)
-            int currentIndex = giveQueue.Count - 1;
+            int currentIndex = giveList.Count - 1;
 
             // --- 2줄 쌓기 공식 ---
             float posX = 0;
@@ -67,8 +65,20 @@ public class GiveZone : BaseZone
                 .SetDelay(i * 0.05f)
                 .SetEase(Ease.OutQuad);
         }
+    }
 
-        Debug.Log($"[납부 완료] {targetItemID} 아이템 {items.Count}개 받음. 현재 대기열: {giveQueue.Count}개");
+    // 가공기가 하나씩 뺄때마다 호출될 함수
+    public GameObject OnGetItem()
+    {
+        if (giveList.Count == 0) return null;
 
+        //가장 오래된(아래에 있는) 아이템 추출
+        int lastIndex = giveList.Count - 1;
+        GameObject item = giveList[lastIndex];
+
+        //남은 아이템들 재정렬 (아래로 한 칸씩 이동)
+        giveList.RemoveAt(lastIndex);
+
+        return item;
     }
 }
