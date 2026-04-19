@@ -68,9 +68,16 @@ public class StackManager : MonoBehaviour
         var config = GetConfig(itemID);
         if (config == null) return true;
 
+        // 최종 최대치 = 기본 설정값 + (레벨 * 10)
+        int currentLevel = pc.GetLevel();   // 현 레벨 가져옴
+        int finalMaxCount = config.maxCount + (currentLevel * 10);
+
         // 내 전체 스택에서 해당 ID를 가진 아이템 개수만 필터링해서 카운트
         int currentCount = stackRes.FindAll(x => x.itemID == itemID).Count;
-        return currentCount >= config.maxCount;
+
+        //Debug.Log($"[체크] 레벨:{currentLevel} | 현재:{currentCount} | 최대:{finalMaxCount}");
+
+        return currentCount >= finalMaxCount;
     }
     /// <summary>
     /// ID로 해당 아이템의 설정 정보 가져오기
@@ -163,7 +170,7 @@ public class StackManager : MonoBehaviour
         // 최종좌표
         Vector3 targetRealPos = targetPivot.TransformPoint(targetPos);
 
-        obj.transform.DOJump(targetRealPos, 2f, 1, flyDuration)
+        obj.transform.DOJump(targetRealPos, 1.2f, 1, flyDuration)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
@@ -173,7 +180,7 @@ public class StackManager : MonoBehaviour
                 obj.transform.localRotation = Quaternion.identity;
 
                 // 스케일 연출 더하기
-                obj.transform.DOPunchScale(Vector3.one * 0.2f, 0.2f);
+                obj.transform.DOPunchScale(Vector3.one * 0.1f, 0.15f);
             });
 
     }

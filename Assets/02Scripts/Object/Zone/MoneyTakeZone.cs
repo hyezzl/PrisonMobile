@@ -30,7 +30,7 @@ public class MoneyTakeZone : TakeZone
         money.transform.SetParent(stackPivot);
         money.transform.localRotation = Quaternion.identity;
 
-        money.transform.DOLocalJump(targetLocalPos, 2f, 1, 0.5f)
+        money.transform.DOLocalJump(targetLocalPos, 0.7f, 1, 0.2f)
             .SetDelay(delay)
             .SetEase(Ease.OutQuad)
             .OnComplete(() => {

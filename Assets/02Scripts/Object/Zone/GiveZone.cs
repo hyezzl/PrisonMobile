@@ -54,7 +54,7 @@ public class GiveZone : BaseZone
             item.transform.SetParent(depositPivot);
 
             // 날아오는 연출 
-            item.transform.DOLocalJump(targetLocalPos, 2f, 1, 0.4f)
+            item.transform.DOLocalJump(targetLocalPos, 1f, 1, 0.3f)
                 .SetDelay(i * 0.05f) // 차례대로 출발
                 .SetEase(Ease.OutQuad)
                 .OnComplete(() => {

@@ -68,7 +68,7 @@ public class PrisonerGiveZone : GiveZone
             Vector3 targetPos = new Vector3(0, 0, index * 0.2f);
 
             item.transform.SetParent(givePivot);
-            item.transform.DOLocalJump(targetPos, 2f, 1, 0.4f)
+            item.transform.DOLocalJump(targetPos, 0.8f, 1, 0.2f)
                 .SetDelay(i * 0.05f)
                 .OnComplete(() => {
                     item.transform.localPosition = targetPos;

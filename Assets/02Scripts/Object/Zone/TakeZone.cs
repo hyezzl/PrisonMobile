@@ -37,7 +37,7 @@ public class TakeZone : BaseZone
         item.transform.SetParent(stackPivot);
 
         // ø¨√‚
-        item.transform.DOLocalJump(targetPos, 1f, 1, 0.3f)
+        item.transform.DOLocalJump(targetPos, 0.7f, 1, 0.2f)
             .SetEase(Ease.OutQuad);
         item.transform.DOLocalRotate(Vector3.zero, 0.3f);
     }

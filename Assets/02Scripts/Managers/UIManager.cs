@@ -11,9 +11,12 @@ public class UIManager : Singleton<UIManager>
 
     public void UpdateMoneyUI(int amount)
     {
-        moneyText.text = amount.ToString("N0"); // 1,000 단위 쉼표 추가
+        moneyText.text = amount.ToString("N0");
 
+        // 1. 기존 트윈 즉시 종료
         moneyText.transform.DOKill();
+
+        moneyText.transform.localScale = Vector3.one;
         moneyText.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f);
     }
 }

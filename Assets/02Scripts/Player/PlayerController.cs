@@ -12,6 +12,16 @@ public enum PlayerState
     Achieve,    // 무언가 달성하거나, 얻었을 때
 }
 
+
+public enum RewardType
+{ 
+    LevelUp,            // 플레이어 무기 업그레이드
+    AddAIminer,         // 채굴꾼 AI
+    AddAIdeliver,       // 수갑배달 AI
+}
+
+
+
 public class PlayerController : MonoBehaviour
 {
 
@@ -22,21 +32,44 @@ public class PlayerController : MonoBehaviour
     private PlayerState curState;
     private int curLevel = 0;
 
+    [Header("Level Settings")]
+    [SerializeField] private List<GameObject> weaponModels; // 레벨별 무기 모델
+
+    // 채집 관련 능력치 (LevelUp 시 자동 업데이트됨)
+    public float collectRange { get; private set; } = 2.0f;
+    public float collectCooldown { get; private set; } = 1.0f;
+
+
     // 참조
     private PlayerMove pm;
     private PlayerAnimation anim;
     private IInputHandler inputHandler;
+    private PlayerInteractHandler interactHandler;
 
 
     // 상태변수
     private bool isInteract;
+
+
+
 
     private void Awake()
     {
         pm = GetComponent<PlayerMove>();
         anim = GetComponent<PlayerAnimation>();
         inputHandler = GetComponent<IInputHandler>();
+        interactHandler = GetComponent<PlayerInteractHandler>();
         if (pm == null || anim == null || inputHandler == null) Debug.LogWarning("PlayerController - Failed to Ref");
+    }
+
+
+    private void Start()
+    {
+        // 시작 레벨(0)에 대한 애니메이션 초기화
+        if (anim != null && interactHandler != null)
+        {
+            anim.SetLevelAnimation(curLevel, interactHandler.rangeSpeeds[0]);
+        }
     }
 
 
@@ -107,7 +140,48 @@ public class PlayerController : MonoBehaviour
     public int GetLevel()
     { return curLevel; }
 
-    
 
+    // 소비존 달성 보상
+    public void ReceiveReward(RewardType type)
+    {
+        switch (type)
+        {
+            case RewardType.LevelUp:
+                LevelUp();
+                break;
+
+            case RewardType.AddAIminer:
+                // TODO: AI 광부 소환 로직 연결
+                Debug.Log("AI 광부 추가됨!");
+                break;
+
+            case RewardType.AddAIdeliver:
+                // TODO: AI 배달꾼 소환 로직 연결
+                Debug.Log("AI 배달꾼 추가됨!");
+                break;
+        }
+    }
+
+    private void LevelUp()
+    {
+        curLevel++;
+
+        // 콜라이더/리스트를 갱신
+        if (interactHandler != null)
+        {
+            interactHandler.UpdateInteractionCollider(curLevel);
+        }
+
+        // 레벨업 시 애니메이션도 변경
+        if (anim != null && interactHandler != null)
+        {
+            int speedIndex = Mathf.Clamp(curLevel, 0, interactHandler.rangeSpeeds.Count - 1);
+            float currentSpeed = interactHandler.rangeSpeeds[speedIndex];
+
+            anim.SetLevelAnimation(curLevel, currentSpeed);
+        }
+
+        Debug.Log($"레벨업!! 현 레벨 : {curLevel}");
+    }
 
 }

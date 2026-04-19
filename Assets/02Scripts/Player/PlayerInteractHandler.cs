@@ -13,31 +13,40 @@ public class PlayerInteractHandler : MonoBehaviour
     public StackManager stackManager { get; private set; }
     private PlayerController pc;
 
-    [Header("Interaction Settings")]
-    [SerializeField] private float range = 1.8f;       // 감지 범위
-    [SerializeField] private float interactCooldown = 1.0f;    // 채집 간격 (1초)
+    [Header("레벨별 채집")]
+    [SerializeField] private List<GameObject> rangeColliders; // 레벨별 콜라이더 오브젝트
+    public List<float> rangeSpeeds;         // 레벨별 채집속도
+
+    [Header("Layer Settings")]
     [SerializeField] private LayerMask targetLayer;    // 자원 레이어 
     [SerializeField] private LayerMask zoneLayer;       // Zone 레이어
 
     private bool isInteract = false;
+
+    // 현재 콜라이더 안에 들어와 있는 타겟
+    private List<Collider> curTargets = new List<Collider>();
 
 
     private void Awake()
     {
         stackManager = GetComponent<StackManager>();
         pc = GetComponent<PlayerController>();
+
+        // 시작할 때 현재 레벨에 맞는 콜라이더만 켜기
+        UpdateInteractionCollider(pc.GetLevel());
     }
 
 
     private void Update()
     {
-        // 자원탐색
-        Collider[] cols = Physics.OverlapSphere(transform.position, range, targetLayer);
-
-        // 자원 있고, 채집중 아니라면
-        if (cols.Length > 0 && !isInteract)
+        // 타겟이 있고 채집 중이 아니면 루프 시작
+        if (curTargets.Count > 0 && !isInteract)
         {
-            StartCoroutine(InteractLoop());
+            // Null이 된 타겟(이미 파괴된 오브젝트 등) 정리
+            curTargets.RemoveAll(t => t == null || !t.gameObject.activeInHierarchy);
+
+            if (curTargets.Count > 0)
+                StartCoroutine(InteractLoop());
         }
     }
 
@@ -50,43 +59,60 @@ public class PlayerInteractHandler : MonoBehaviour
 
         while (true) 
         {
-            // 주변 타켓 확인
-            Collider[] targets = Physics.OverlapSphere(transform.position, range, targetLayer);
-            
-            if (targets.Length == 0) break;     // 자원이 없으면 멈춤
+            // 루프 시작 시점에 이미 파괴되었거나 비활성화된 타겟들을 먼저 리스트에서 제거
+            curTargets.RemoveAll(t => t == null || !t.gameObject.activeInHierarchy || !t.enabled);
+
+            if (curTargets.Count == 0) break;   // 리스트가 비었으면 루프종료
 
 
-            // 가장 가까운 타겟
-            IActionTarget forwardTarget = GetBestTarget(targets);
-            if(forwardTarget == null) break;
+            int curLevel = pc.GetLevel();
+            float curSpeed = rangeSpeeds[curLevel];
 
-            // 상호작용
             pc.SetInteract(true);
 
-            yield return new WaitForSeconds(0.3f);
 
-            // 레벨에 따른 처리
-            if (pc.GetLevel() == 0)
+            // ///////////////////////////////////////////
+            //          레벨별 채집
+            //////////////////////////////////////////////
+            if (curLevel == 0)
             {
-                // 가까운 하나만
-                var target = targets[0].GetComponent<IActionTarget>();
-                target?.Interact(this);
+                // 레벨 0: 범위 내에서 가장 정면 하나만
+                IActionTarget best = GetBestTargetFromList();
+                if (best != null)
+                    best.Interact(this);
+                else
+                    break; // 혹시라도 타겟을 못 찾으면 즉시 루프 탈출
             }
             else
-            { 
-                // 추후 ~
+            {
+                // 루프 도중 리스트 변형 방지를 위해 복사본 사용
+                var targetsToProcess = curTargets.ToArray();
+                foreach (var col in targetsToProcess)
+                {
+                    if (col != null && col.gameObject.activeInHierarchy)
+                    {
+                        IActionTarget target = col.GetComponent<IActionTarget>();
+                        target?.Interact(this);
+
+                        yield return new WaitForSeconds(0.05f);
+                    }
+                }
             }
 
             // 쿨타임 적용
-            yield return new WaitForSeconds(interactCooldown - 0.3f);
+            yield return new WaitForSeconds(curSpeed * 0.6f);
+
+            // 한 사이클 이후 리스트 재정리
+            curTargets.RemoveAll(t => t == null || !t.gameObject.activeInHierarchy);    // 리스트 재정리
         }
 
         pc.SetInteract(false);
         isInteract = false;
     }
 
+    //=================================================
     // Zone과의 Interact
-    private void OnTriggerStay(Collider other)
+    public void OnTriggerStay(Collider other)
     {
         // 닿은 물체가 Zone 레이어인지 확인
         if (((1 << other.gameObject.layer) & zoneLayer) != 0)
@@ -102,40 +128,67 @@ public class PlayerInteractHandler : MonoBehaviour
     }
 
 
-    private void OnDrawGizmos()
+
+    //=================================================
+    // 자원과의 Interact
+    public void OnTriggerEnter(Collider other)
     {
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, range);
+        // 자원 레이어라면 리스트에 추가
+        if (((1 << other.gameObject.layer) & targetLayer) != 0)
+        {
+            // 플레이어와 충돌한것은 제거
+            if (other.transform.root != transform.root)
+            {
+                if (!curTargets.Contains(other))
+                {
+                    curTargets.Add(other);
+                }
+            }
+        }
+    }
+
+    public void OnTriggerExit(Collider other)
+    {
+        // 범위를 벗어나면 리스트에서 제거
+        if (curTargets.Contains(other))
+        {
+            curTargets.Remove(other);
+        }
+    }
+
+
+    // 시야콜라이더 레벨따라서 제어
+    // 레벨업 시 호출
+    public void UpdateInteractionCollider(int level)
+    {
+        for (int i = 0; i < rangeColliders.Count; i++)
+        {
+            if (rangeColliders[i] != null)
+                rangeColliders[i].SetActive(i == level);
+        }
+        curTargets.Clear();
     }
 
 
     // 가장 정면에 가까운 대상 찾기
-    private IActionTarget GetBestTarget(Collider[] targets)
+    private IActionTarget GetBestTargetFromList()
     {
         IActionTarget closest = null;
         float minDistance = Mathf.Infinity;
 
-        foreach (var col in targets)
+        foreach (var col in curTargets)
         {
+            if (col == null) continue;
             IActionTarget target = col.GetComponent<IActionTarget>();
-            if (target == null) continue;
 
             float dist = Vector3.Distance(transform.position, col.transform.position);
-
-            // 정면 각도 체크
-            Vector3 dirToTarget = (col.transform.position - transform.position).normalized;
-            float dot = Vector3.Dot(transform.forward, dirToTarget);
-
-            // dot > 0 이면 내 앞쪽, 0.5f 정도면 대략 전방 60도 이내
-            if (dot > 0.5f)
+            if (dist < minDistance)
             {
-                if (dist < minDistance)
-                {
-                    minDistance = dist;
-                    closest = target;
-                }
+                minDistance = dist;
+                closest = target;
             }
         }
         return closest;
     }
+
 }
