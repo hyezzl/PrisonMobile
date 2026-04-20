@@ -100,6 +100,8 @@ public class AIMiner : MonoBehaviour
         // 애니메이션
         anim.SetBool("mining", true);
 
+        SoundManager.Instance.PlaySFX(0);
+
         // 바위 앞에 멈춰서 채집 시간만큼 대기
         agent.isStopped = true;
 

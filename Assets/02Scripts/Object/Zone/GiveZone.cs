@@ -58,6 +58,10 @@ public class GiveZone : BaseZone
             // 부모를 납부존 피봇으로 변경
             item.transform.SetParent(depositPivot);
 
+
+            // 사운드
+            StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, i * 0.06f));
+
             // 날아오는 연출 
             item.transform.DOLocalJump(targetLocalPos, 1f, 1, 0.3f)
                 .SetDelay(i * 0.05f) // 차례대로 출발

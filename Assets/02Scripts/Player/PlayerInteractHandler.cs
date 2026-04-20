@@ -79,7 +79,12 @@ public class PlayerInteractHandler : MonoBehaviour
                 // 레벨 0: 범위 내에서 가장 정면 하나만
                 IActionTarget best = GetBestTargetFromList();
                 if (best != null)
+                { 
                     best.Interact(this);
+
+                    // 사운드 (단일)
+                    SoundManager.Instance.PlaySFX((int)SFXType.Hit);
+                }
                 else
                     break; // 혹시라도 타겟을 못 찾으면 즉시 루프 탈출
             }
@@ -93,6 +98,9 @@ public class PlayerInteractHandler : MonoBehaviour
                     {
                         IActionTarget target = col.GetComponent<IActionTarget>();
                         target?.Interact(this);
+
+                        // 사운드 (단일)
+                        SoundManager.Instance.PlaySFX((int)SFXType.Hit);
 
                         yield return new WaitForSeconds(0.05f);
                     }

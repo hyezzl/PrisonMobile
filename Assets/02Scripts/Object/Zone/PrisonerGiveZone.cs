@@ -77,13 +77,17 @@ public class PrisonerGiveZone : GiveZone
             GameObject item = items[i];
             giveList.Add(item);
 
+            // »ç¿îµå
+            StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, 0.08f));
+
             int index = giveList.Count - 1;
 
             Vector3 targetPos = new Vector3(0, 0, index * 0.2f);
 
             item.transform.SetParent(givePivot);
-            item.transform.DOLocalJump(targetPos, 0.8f, 1, 0.2f)
-                .SetDelay(i * 0.05f)
+
+            item.transform.DOLocalJump(targetPos, 1f, 1, 0.4f)
+                .SetDelay(i * 0.09f)
                 .OnComplete(() => {
                     item.transform.localPosition = targetPos;
                     item.transform.localRotation = Quaternion.identity;

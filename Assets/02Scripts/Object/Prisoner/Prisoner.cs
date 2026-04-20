@@ -42,7 +42,7 @@ public class Prisoner : MonoBehaviour
 
     public void Init()
     {
-        requiredHandcuffs = Random.Range(3, 6); // 2~4°³
+        requiredHandcuffs = Random.Range(2,5); // 2~4°³
         currentHandcuffs = 0;
         ui.InitUI(requiredHandcuffs);
     }
@@ -148,9 +148,13 @@ public class Prisoner : MonoBehaviour
         int myOrder = (manager != null) ? manager.GetWaitingCnt() : 0;
 
         float offset = (myOrder + 1) * 1.2f;
-        Vector3 waitPos = cornerPoint.position + (cornerPoint.right * offset);
+        Vector3 waitPos = cornerPoint.position - (cornerPoint.right * offset);
         //////
 
-        transform.DOMove(waitPos, 5f).SetEase(Ease.OutQuad);
+        transform.DOMove(waitPos, 6f)
+        .SetEase(Ease.OutQuad)
+        .OnComplete(() => {
+            transform.position = waitPos;
+        });
     }
 }

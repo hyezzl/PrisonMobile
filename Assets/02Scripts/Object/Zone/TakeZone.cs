@@ -21,6 +21,9 @@ public class TakeZone : BaseZone
         {
             GameObject item = takeStack.Pop();
 
+            // 사운드
+            StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, 0f));
+
             // 플레이어 스택 매니저에 추가
             player.stackManager.AddStack(item, targetItemID);
 

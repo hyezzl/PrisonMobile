@@ -15,15 +15,11 @@ public class MoneyTakeZone : TakeZone
             return;
         }
 
+        // 사운드
+        SoundManager.Instance.PlaySFX((int)SFXType.Money);
+
         // 3. 돈 하나 꺼내기
         GameObject money = takeStack.Pop();
-
-        //////////////////////////////////////////////////////////
-        if (money.TryGetComponent<Money>(out var moneyItem))
-        {
-            // DataManager.Instance.Gold += moneyItem.scoreValue; // 데이터 반영
-            // UIManager.Instance.UpdateMoneyUI(DataManager.Instance.Gold); // UI 반영
-        }
 
         player.stackManager.AddStack(money, targetItemID);
 

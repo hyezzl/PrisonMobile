@@ -19,6 +19,8 @@ public class Rocks : MonoBehaviour, IActionTarget
     private MeshRenderer mr;
     private Collider col;
 
+    private Vector3 originScale; // 원래 크기
+
 
     public bool CanInteract { get; private set; } = true;
 
@@ -27,6 +29,8 @@ public class Rocks : MonoBehaviour, IActionTarget
     {
         mr = GetComponent<MeshRenderer>();
         col = GetComponent<Collider>();
+
+        originScale = transform.localScale; // 원래 크기 저장
     }
 
 
@@ -99,10 +103,12 @@ public class Rocks : MonoBehaviour, IActionTarget
         col.enabled = true;
 
         transform.localScale = Vector3.zero;
-        transform.DOScale(Vector3.one, 0.5f)
+        transform.DOScale(Vector3.one, 0.6f)
                 .SetEase(Ease.OutBack)
                 .OnComplete(() => {
                     CanInteract = true; // 연출이 끝나면 다시 캘 수 있음
                 });
     }
+    
+
 }

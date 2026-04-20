@@ -36,6 +36,9 @@ public class PlayerAnimation : MonoBehaviour
         anim.SetInteger(hashLevel, level);
 
         // 2. 애니메이션 재생 속도 조절 (레벨이 높을수록 팔을 빨리 휘두름)
-        anim.SetFloat(hashAttackSpeed, speed);
+        //anim.SetFloat(hashAttackSpeed, speed);
+        float actualPlaybackSpeed = 1.0f + (level * 0.5f);
+
+        anim.SetFloat(hashAttackSpeed, actualPlaybackSpeed);
     }
 }

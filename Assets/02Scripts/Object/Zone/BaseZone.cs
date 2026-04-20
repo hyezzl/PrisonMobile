@@ -7,7 +7,7 @@ public abstract class BaseZone : MonoBehaviour, IActionTarget
     [Header("Zone 설정")]
     public int targetItemID; // 이 Zone에서 취급하는 아이템 ID
     public string eventID;      // 발행할 이벤트
-    public float interactionDelay = 0.1f; // 상호작용 간격 (연속 납부/획득 속도)
+    public float interactionDelay = 0.03f; // 상호작용 간격 (연속 납부/획득 속도)
 
     protected float lastInteractionTime;
 
@@ -24,4 +24,17 @@ public abstract class BaseZone : MonoBehaviour, IActionTarget
     }
 
     protected abstract void PlayLogic(PlayerInteractHandler player);
+
+
+    // 사운드
+    protected IEnumerator PlaySFXWithDelay(SFXType type, float delay)
+    {
+        if (delay > 0)
+            yield return new WaitForSeconds(delay);
+
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX((int)type);
+        }
+    }
 }

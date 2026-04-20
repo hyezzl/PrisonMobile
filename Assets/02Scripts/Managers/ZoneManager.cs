@@ -44,16 +44,30 @@ public class ZoneManager : MonoBehaviour
         {
             if (data.entryEventID == evt.eventID)
             {
-                ActivateZone(data.zone);
+                StartCoroutine(ActivateZone(data.zone));
             }
         }
     }
 
-    private void ActivateZone(ConsumeZone targetZone)
-    {
-        if (targetZone == null || targetZone.gameObject.activeSelf) return;
+    //private void ActivateZone(ConsumeZone targetZone)
+    //{
+    //    if (targetZone == null || targetZone.gameObject.activeSelf) return;
 
-        // 오브젝트 활성화
+    //    // 오브젝트 활성화
+    //    targetZone.gameObject.SetActive(true);
+    //}
+
+    private IEnumerator ActivateZone(ConsumeZone targetZone)
+    {
+        if (targetZone == null || targetZone.gameObject.activeSelf) yield break;
+
+        yield return new WaitForSeconds(0.5f);
+
         targetZone.gameObject.SetActive(true);
+        Transform zoneTr = targetZone.transform;
+        Vector3 originalScale = zoneTr.localScale;
+        zoneTr.localScale = Vector3.zero;
+
+        zoneTr.DOScale(originalScale, 0.6f).SetEase(Ease.OutBack);
     }
 }

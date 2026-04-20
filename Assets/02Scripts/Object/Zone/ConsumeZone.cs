@@ -85,7 +85,8 @@ public class ConsumeZone : BaseZone
             item.transform.DOMove(this.transform.position, 0.2f)
                 .SetDelay(delay)
                 .OnStart(() => {
-                    // 사운드!
+                    // 사운드
+                    StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, 0f));
                 })
                 .OnComplete(() => {
                     UpdateUI();      
@@ -129,6 +130,9 @@ public class ConsumeZone : BaseZone
     private void CompleteZone(PlayerInteractHandler player)
     {
         isComplete = true;
+
+        // 사운드
+        SoundManager.Instance.PlaySFX((int)SFXType.Complete);
 
         // 보상을 받을 주체에게 알림
         PlayerController pc = player.GetComponent<PlayerController>();
