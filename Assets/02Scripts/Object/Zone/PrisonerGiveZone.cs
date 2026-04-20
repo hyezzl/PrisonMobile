@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PrisonerGiveZone : GiveZone
@@ -13,7 +14,8 @@ public class PrisonerGiveZone : GiveZone
     [Header("지점 설정")]
     public Transform queueStartPivot; // 첫죄수 서있을 위치
     public Transform givePivot;     // 수갑이 일렬로 깔릴 바닥 위치
-    public Transform prisonLocation;  // 수갑 다 받은 죄수가 갈 곳
+    public Transform cornorPivot;  // 한번 꺾을 곳
+    public Transform prison;        // 감옥입구
 
     [Header("재화 설정")]
     public MoneyTakeZone moneyTakeZone;
@@ -22,6 +24,7 @@ public class PrisonerGiveZone : GiveZone
     [HideInInspector]
     public List<Prisoner> waitingPrisoners = new List<Prisoner>();      // 현재 생성된 죄수 리스트
     private bool isDistributing = false;        // 현재 수갑 납부 중인지
+    private bool isPrisonFull = false;
 
     private void Start()
     {
@@ -33,6 +36,15 @@ public class PrisonerGiveZone : GiveZone
 
         // 첫번째 죄수의 UI는 켜둠
         waitingPrisoners[0].ShowRequestUI();
+    }
+    private void OnEnable()
+    {
+        EventBus.Instance.Subscribe<GameEvents.StartEvent>(OnPrisonFull);
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Instance.Unsubscribe<GameEvents.StartEvent>(OnPrisonFull);
     }
 
     private void Update()
@@ -131,14 +143,25 @@ public class PrisonerGiveZone : GiveZone
             // 3. 다 채웠으면 다음 죄수로 교체
             if (currentPrisoner.isSatisfied)
             {
-                yield return new WaitForSeconds(0.3f);      // 잠깐 여유둠
+                yield return new WaitForSeconds(0.5f);      // 잠깐 여유둠
 
                 waitingPrisoners.RemoveAt(0);
-                currentPrisoner.GoToPrison(prisonLocation);
+
+                if (isPrisonFull)
+                {
+                    currentPrisoner.StopAtCorner(cornorPivot);
+                    Debug.Log("제발요ㅠ");
+                }
+                else 
+                { 
+                    currentPrisoner.GoToPrison(cornorPivot, prison);
+                }
+
+
                 SpawnNewPrisoner();
                 SortPrisoners();
 
-                yield return new WaitForSeconds(0.6f); // 줄 당겨지는 시간 대기
+                yield return new WaitForSeconds(2f); // 줄 당겨지는 시간 대기
 
                 if (waitingPrisoners.Count > 0)
                     waitingPrisoners[0].ui.Show();
@@ -172,6 +195,16 @@ public class PrisonerGiveZone : GiveZone
 
             // 부드럽게 한 칸씩 앞으로 땡겨지는 연출
             waitingPrisoners[i].transform.DOMove(targetPos, 0.8f).SetEase(Ease.OutQuad);
+        }
+    }
+
+
+    // 죄수가 꽉찼을때
+    private void OnPrisonFull(GameEvents.StartEvent evt)
+    {
+        if (evt.eventID == "E008")
+        {
+            isPrisonFull = true;
         }
     }
 }

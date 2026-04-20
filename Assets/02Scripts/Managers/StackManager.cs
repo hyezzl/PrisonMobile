@@ -119,7 +119,7 @@ public class StackManager : MonoBehaviour
         stackRes.Add(new StackData(obj, itemID));
 
         //////////// 이벤트 발행////////////
-        if (itemID == stoneID && stackRes.FindAll(x => x.itemID == stoneID).Count >= 5 && isFirst)
+        if (itemID == stoneID && stackRes.FindAll(x => x.itemID == stoneID).Count >= 2 && isFirst)
         {
             isFirst = false;
             EventBus.Instance.Publish(new GameEvents.StartEvent("E002"));
@@ -158,7 +158,7 @@ public class StackManager : MonoBehaviour
         Vector3 targetLocalPos = new Vector3(0, curCount * config.distY, 0);
 
         // 해당 아이템 전용 피봇(위치)으로 날려보냄
-        CollectAnimate(obj, obj.transform.position, targetLocalPos, targetPivot);
+        CollectAnimateForHandcuff(obj, targetLocalPos, targetPivot);
 
         // UI 업데이트
         if (itemID == moneyID)
@@ -382,6 +382,27 @@ public class StackManager : MonoBehaviour
     {
         if (maxUICoroutine != null) StopCoroutine(maxUICoroutine);
         maxUICoroutine = StartCoroutine(ShowMaxUI());
+    }
+
+
+    // 아령전용
+    private void CollectAnimateForHandcuff(GameObject obj, Vector3 targetPos, Transform targetPivot)
+    {
+        // 현재 월드 위치 저장
+        Vector3 startWorldPos = obj.transform.position;
+
+        // 날아가는 동안 부모 해제 (안정성)
+        obj.transform.SetParent(null);
+        obj.transform.position = startWorldPos;
+
+        obj.transform.DOJump(targetPivot.TransformPoint(targetPos), 0.3f, 1, 0.3f)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                obj.transform.SetParent(targetPivot);
+                obj.transform.localPosition = targetPos;
+                obj.transform.localRotation = Quaternion.identity;
+            });
     }
 
 

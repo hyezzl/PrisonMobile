@@ -55,4 +55,9 @@ public static class GameEvents
 
     // 모든 Arrow끌때
     public struct ClearArrow { }
+
+
+    // 죄수 한명추가
+    public struct AddPrisoner { }
+
 }

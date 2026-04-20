@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Prisoner : MonoBehaviour
 {
@@ -16,7 +17,9 @@ public class Prisoner : MonoBehaviour
 
     public int requiredHandcuffs; // 필요한 수갑 개수
     public int currentHandcuffs = 0;
-    private Transform moneyspawnPivot;  
+    private Transform moneyspawnPivot;
+    private Rigidbody rb;
+    private Sequence moveSeq;
 
 
     public bool isSatisfied => currentHandcuffs >= requiredHandcuffs;
@@ -24,6 +27,12 @@ public class Prisoner : MonoBehaviour
     // 줄의 맨 앞에 도착했을 때 호출
     public void ShowRequestUI() => ui.Show();
 
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        if (rb != null) rb.isKinematic = true;
+    }
 
 
     private void Start()
@@ -33,7 +42,7 @@ public class Prisoner : MonoBehaviour
 
     public void Init()
     {
-        requiredHandcuffs = Random.Range(2, 5); // 2~4개
+        requiredHandcuffs = Random.Range(3, 6); // 2~4개
         currentHandcuffs = 0;
         ui.InitUI(requiredHandcuffs);
     }
@@ -64,7 +73,8 @@ public class Prisoner : MonoBehaviour
             });
     }
 
-    public void GoToPrison(Transform prisonTarget)
+
+    public void GoToPrison(Transform cornerPoint, Transform prisonInside)
     {
         ui.Hide();      // UI끔
 
@@ -83,12 +93,28 @@ public class Prisoner : MonoBehaviour
                 // 현재위치에서 돈생성
                 GameObject money = Instantiate(moneyPrefab, moneyspawnPivot.position, Quaternion.identity);
 
-                targetZone.AddMoneyToStack(money, targetLocalPos, i * 0.05f);
+                targetZone.AddMoneyToStack(money, targetLocalPos, i * 0.01f);
             }
         }
 
-        transform.DOMove(prisonTarget.position, 1.5f).OnComplete(() => {
-            Destroy(gameObject); // 감옥 도착 시 처리 (혹은 비활성화)
+        // ㄴ자 이동 시퀀스
+        moveSeq = DOTween.Sequence();
+
+        // 감옥이동 (중간에 한번 코너)
+        moveSeq.Append(transform.DOMove(cornerPoint.position, 6f).SetEase(Ease.Linear));
+        moveSeq.Append(transform.DOMove(prisonInside.position, 3f).SetEase(Ease.OutQuad));
+
+        // 도착
+        moveSeq.OnComplete(() =>
+        {
+            if (rb != null)
+            {
+                rb.isKinematic = false;     // 물리 킴
+                rb.AddForce(transform.forward * 2f, ForceMode.Impulse);
+
+                // 이벤트 발행
+                EventBus.Instance.Publish(new GameEvents.AddPrisoner());
+            }
         });
     }
 
@@ -101,5 +127,34 @@ public class Prisoner : MonoBehaviour
         int col = indexInFloor % 2;
 
         return new Vector3(col * 0.5f, floor * 0.2f, row * 0.2f);  // <->  /  /  위아래
+    }
+
+    //// 그리고 대기
+    public void StopAtCorner(Transform cornerPoint)
+    {
+        if (moveSeq != null) moveSeq.Kill();
+        transform.DOKill();
+
+        if (rb != null)
+        {
+            rb.isKinematic = true;      // 물리 연산 중단
+            rb.velocity = Vector3.zero; // 남은 관력 제거
+        }
+
+        if (TryGetComponent<Collider>(out var col))
+        {
+            col.enabled = false;
+        }
+
+        ////
+        var manager = FindFirstObjectByType<PrisonManager>();
+        int myOrder = (manager != null) ? manager.GetWaitingCnt() : 0;
+
+        // 4. 대기 줄 간격 계산 (1.2f 정도면 넉넉합니다)
+        float offset = (myOrder + 1) * 1.2f;
+        Vector3 waitPos = cornerPoint.position + (cornerPoint.right * offset);
+        //////
+
+        transform.DOMove(waitPos, 5f).SetEase(Ease.OutQuad);
     }
 }
