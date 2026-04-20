@@ -68,10 +68,41 @@ public class GiveZone : BaseZone
                 });
             // 회전 연출
             item.transform.DOLocalRotate(Vector3.zero, 0.4f)
-                .SetDelay(i * 0.05f)
+                .SetDelay(i * 0.03f)
                 .SetEase(Ease.OutQuad);
         }
     }
+
+    // AI
+    public void AddItemFromAI(GameObject item)
+    {
+        if (item == null) return;
+
+        //giveList.Add(item);
+        int currentIndex = giveList.Count - 1;
+
+        // 쌓일 위치 계산 (기존 로직과 동일)
+        float posX = 0;
+        float posY = (currentIndex / 2) * spacingY;
+        float posZ = (currentIndex % 2 == 0) ? -spacingX / 2f : spacingX / 2f;
+        Vector3 targetLocalPos = new Vector3(posX, posY, posZ);
+
+        // 부모 설정
+        item.transform.SetParent(depositPivot);
+
+        float distance = Vector3.Distance(item.transform.position, depositPivot.TransformPoint(targetLocalPos));
+        float moveDuration = Mathf.Clamp(distance * 0.15f, 0.8f, 2f);
+
+        item.transform.DOLocalJump(targetLocalPos, 1.5f, 1, moveDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() => {
+                giveList.Add(item);
+
+                item.transform.localPosition = targetLocalPos;
+                item.transform.localRotation = Quaternion.identity;
+            });
+    }
+
 
     // 가공기가 하나씩 뺄때마다 호출될 함수
     public GameObject OnGetItem()

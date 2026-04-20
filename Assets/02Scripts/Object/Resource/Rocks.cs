@@ -11,6 +11,9 @@ public class Rocks : MonoBehaviour, IActionTarget
     [Header("Prefab")]
     [SerializeField] private GameObject stackPrefab;    // 시각프리팹정보 저장
 
+    [Header("AI Ref")]
+    [SerializeField] private GiveZone cacheZone;        // AI의 자원이 이동할 Zone
+
 
     private int itemID = 1001;      // 돌의 고유 아이템 ID
     private MeshRenderer mr;
@@ -30,19 +33,25 @@ public class Rocks : MonoBehaviour, IActionTarget
     public void Interact(PlayerInteractHandler player)
     {
         if (!CanInteract) return;
-
-        var stackManager = player.stackManager;
-
         CanInteract = false;
-        Collect(player);
 
-        // 비활성화
+        // 플레이어가 캔경우
+        if (player != null)
+        {
+            CollectToPlayer(player);
+        }
+        // AI가 캔 경우
+        else
+        {
+            CollectToGiveZone();
+        }
+
         StartCoroutine(Respawn());
     }
 
 
-    // 자원 캐기 완료
-    private void Collect(PlayerInteractHandler player)
+    // 자원 캐기 완료 (플레이어용)
+    private void CollectToPlayer(PlayerInteractHandler player)
     {
         if (player == null || player.stackManager == null) return;
 
@@ -54,6 +63,25 @@ public class Rocks : MonoBehaviour, IActionTarget
         mr.enabled = false;
         col.enabled = false;
     }
+
+
+    // AI용 자원캐기
+    private void CollectToGiveZone()
+    {
+        if (cacheZone != null)
+        {
+            // 프리팹 생성
+            GameObject item = Instantiate(stackPrefab, transform.position, Quaternion.identity);
+
+            // GiveZone의 리스트에 추가하고 바로 날아가게 함
+            cacheZone.AddItemFromAI(item);
+        }
+        // 비활성화
+        mr.enabled = false;
+        col.enabled = false;
+    }
+
+
 
     private IEnumerator Respawn()
     { 

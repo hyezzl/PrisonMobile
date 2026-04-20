@@ -15,6 +15,6 @@ public class YBillboard : MonoBehaviour
     {
         Vector3 camRotation = camTransform.rotation.eulerAngles;
 
-        transform.rotation = Quaternion.Euler(0f, camRotation.y, 0f);
+        transform.rotation = Quaternion.Euler(0f, camRotation.y, 180f);
     }
 }

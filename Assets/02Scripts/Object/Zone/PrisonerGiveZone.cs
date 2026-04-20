@@ -59,7 +59,7 @@ public class PrisonerGiveZone : GiveZone
     }
 
     // ¼ö°©À» ÀÏ·Ä·Î ½×À½
-    private void DeployHandcuffs(List<GameObject> items)
+    public void DeployHandcuffs(List<GameObject> items)
     {
         for (int i = 0; i < items.Count; i++)
         {
