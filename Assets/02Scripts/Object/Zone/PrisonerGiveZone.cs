@@ -62,7 +62,6 @@ public class PrisonerGiveZone : GiveZone
         List<GameObject> items = player.stackManager.PopAllItems(targetItemID);
         if (items != null && items.Count > 0)
         {
-            // 중복 로직 방지를 위해 DeployHandcuffs 하나로 통일하는 게 좋아요!
             DeployHandcuffs(items);
 
             // 이벤트
@@ -150,7 +149,6 @@ public class PrisonerGiveZone : GiveZone
                 if (isPrisonFull)
                 {
                     currentPrisoner.StopAtCorner(cornorPivot);
-                    Debug.Log("제발요ㅠ");
                 }
                 else 
                 { 

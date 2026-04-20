@@ -39,8 +39,10 @@ public class ConsumeZone : BaseZone
         int need = requiredAmount - currentAmount;      // 필요한 재화
         if (need <= 0) return;
 
+        int needPrefabCount = Mathf.CeilToInt((float)need / 5f);
+
         // 플레이어에게서 필요한 만큼(혹은 가진 전부) 돈을 가져옴
-        List<GameObject> moneyToConsume = player.stackManager.PopItems(targetItemID, need);
+        List<GameObject> moneyToConsume = player.stackManager.PopItems(targetItemID, needPrefabCount);
 
         if (moneyToConsume != null && moneyToConsume.Count > 0)
         {
@@ -63,7 +65,16 @@ public class ConsumeZone : BaseZone
         for (int i = 0; i < items.Count; i++)
         {
             GameObject item = items[i];
-            currentAmount++;
+
+            int itemValue = 5;
+            if (item.TryGetComponent<Money>(out var mItem))
+            {
+                itemValue = mItem.value;
+            }
+            currentAmount += itemValue;
+
+            // 소모될 때 목표 금액을 초과하지 않도록 보정
+            if (currentAmount > requiredAmount) currentAmount = requiredAmount;
 
             // 돈 흡수 연출
             item.transform.SetParent(this.transform);
@@ -71,7 +82,7 @@ public class ConsumeZone : BaseZone
             // DOTween의 Delay를 활용해서 순차적으로 날아오게 함
             float delay = i * 0.05f;
 
-            item.transform.DOMove(this.transform.position, 0.3f)
+            item.transform.DOMove(this.transform.position, 0.2f)
                 .SetDelay(delay)
                 .OnStart(() => {
                     // 사운드!

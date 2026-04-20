@@ -58,7 +58,6 @@ public class Prisoner : MonoBehaviour
         // 수갑을 다 채웠다면 UI닫아버림
         if (nextCount >= requiredHandcuffs)
         {
-            // 수갑이 몸에 닿기 직전에 말풍선을 치워버려서 "완료됨"을 즉시 알림
             DOVirtual.DelayedCall(moveDuration * 0.8f, () => ui.Hide());
         }
 
@@ -78,22 +77,20 @@ public class Prisoner : MonoBehaviour
     {
         ui.Hide();      // UI끔
 
-        // 6개의 돈 냄
         if (targetZone != null)
         {
+            int prefabCount = requiredHandcuffs * 2;
             int baseIndex = targetZone.GetNextIndex();
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < prefabCount; i++)
             {
                 int currentIndex = baseIndex + i;
-
-                // 창고(TakeZone) 기준의 목표 로직 좌표 계산
                 Vector3 targetLocalPos = CalculateStackPos(currentIndex);
-
-                // 현재위치에서 돈생성
                 GameObject money = Instantiate(moneyPrefab, moneyspawnPivot.position, Quaternion.identity);
 
-                targetZone.AddMoneyToStack(money, targetLocalPos, i * 0.01f);
+                if (money.TryGetComponent<Money>(out var mItem)) mItem.value = 5;
+
+                targetZone.AddMoneyToStack(money, targetLocalPos, i * 0.02f);
             }
         }
 
@@ -150,7 +147,6 @@ public class Prisoner : MonoBehaviour
         var manager = FindFirstObjectByType<PrisonManager>();
         int myOrder = (manager != null) ? manager.GetWaitingCnt() : 0;
 
-        // 4. 대기 줄 간격 계산 (1.2f 정도면 넉넉합니다)
         float offset = (myOrder + 1) * 1.2f;
         Vector3 waitPos = cornerPoint.position + (cornerPoint.right * offset);
         //////

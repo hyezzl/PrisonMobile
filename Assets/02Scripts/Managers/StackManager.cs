@@ -163,8 +163,10 @@ public class StackManager : MonoBehaviour
         // UI 업데이트
         if (itemID == moneyID)
         {
-            int totalMoney = stackRes.FindAll(x => x.itemID == moneyID).Count;
-            UIManager.Instance.UpdateMoneyUI(totalMoney);
+            int moneyPrefabCount = stackRes.FindAll(x => x.itemID == moneyID).Count;
+            int totalGoldAmount = moneyPrefabCount * 5;
+
+            UIManager.Instance.UpdateMoneyUI(totalGoldAmount);
         }
     }
 
@@ -249,8 +251,8 @@ public class StackManager : MonoBehaviour
         // UI 업데이트
         if (targetItemID == moneyID)
         {
-            int remainingCount = stackRes.FindAll(x => x.itemID == moneyID).Count;
-            UIManager.Instance.UpdateMoneyUI(remainingCount);
+            int remainingPrefabCount = stackRes.FindAll(x => x.itemID == moneyID).Count;
+            UIManager.Instance.UpdateMoneyUI(remainingPrefabCount * 5);
         }
 
         return itemsToGive;
