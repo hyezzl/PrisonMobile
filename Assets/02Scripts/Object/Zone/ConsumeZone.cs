@@ -5,6 +5,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+/// <summary>
+/// ★ 다른 존과는 다르게 ConsumeZone의 eventID는 "실행"할 이벤트!
+/// </summary>
+
 public class ConsumeZone : BaseZone
 {
     [Header("Consume Settings")]
@@ -19,6 +24,7 @@ public class ConsumeZone : BaseZone
     [SerializeField] private Image fillImg;
 
     private bool isComplete = false;        // 모두 납부 되었는지?
+    private bool isFirst = true;         // 처음 납부?
 
     private void Start()
     {
@@ -45,6 +51,15 @@ public class ConsumeZone : BaseZone
 
     private void ProcessConsumption(List<GameObject> items, PlayerInteractHandler player)
     {
+        // 첫이벤트용
+        if (isFirst && items.Count > 0)
+        {
+            isFirst = false;
+            // arrow삭제
+            EventBus.Instance.Publish(new GameEvents.ClearArrow());
+        }
+
+
         for (int i = 0; i < items.Count; i++)
         {
             GameObject item = items[i];
@@ -85,6 +100,8 @@ public class ConsumeZone : BaseZone
             priceText.text = need.ToString();
 
             priceText.transform.DOKill();
+            priceText.transform.localScale = Vector3.one;
+
             priceText.transform.DOPunchScale(Vector3.one * 0.15f, 0.2f);
         }
 
@@ -97,7 +114,7 @@ public class ConsumeZone : BaseZone
             fillImg.DOFillAmount(targetFill, 0.25f).SetEase(Ease.OutQuad);
         }
     }
-
+        
     private void CompleteZone(PlayerInteractHandler player)
     {
         isComplete = true;
@@ -108,6 +125,9 @@ public class ConsumeZone : BaseZone
         {
             pc.ReceiveReward(rewardType); // 보상 타입을 넘겨줌
         }
+
+        // 이벤트 발행
+        EventBus.Instance.Publish(new GameEvents.StartEvent(eventID));
 
         // 완료 연출
         transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() => {

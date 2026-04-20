@@ -50,7 +50,7 @@ public class TakeZone : BaseZone
 
 
     // 처음 납부되었을때 한번만 실행(이벤트)
-    protected void CheckFirst()
+    protected virtual void CheckFirst()
     {
         if (!isFirst || string.IsNullOrEmpty(eventID)) return;
 

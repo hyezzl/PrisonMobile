@@ -18,6 +18,13 @@ public enum RewardType
     LevelUp,            // 플레이어 무기 업그레이드
     AddAIminer,         // 채굴꾼 AI
     AddAIdeliver,       // 수갑배달 AI
+    ExpensionCell,      // 감옥 늘리기
+}
+
+public enum GameMode
+{ 
+    Play,
+    Stop,       // 플레이어의 입력 막음
 }
 
 
@@ -31,6 +38,7 @@ public class PlayerController : MonoBehaviour
     // 플레이어 현 상태
     private PlayerState curState;
     private int curLevel = 0;
+    private GameMode curMode = GameMode.Play;
 
     [Header("Level Settings")]
     [SerializeField] private List<GameObject> weaponModels; // 레벨별 무기 모델
@@ -38,6 +46,10 @@ public class PlayerController : MonoBehaviour
     // 채집 관련 능력치 (LevelUp 시 자동 업데이트됨)
     public float collectRange { get; private set; } = 2.0f;
     public float collectCooldown { get; private set; } = 1.0f;
+
+
+    // 제어 변수
+    private bool isControlLock = false;
 
 
     // 참조
@@ -76,7 +88,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Vector2 input = inputHandler.GetMovement;
+        Vector2 input = (curMode == GameMode.Play) ? inputHandler.GetMovement : Vector2.zero;
         bool existInput = input.sqrMagnitude > 0.01f;
 
         // 상태 갱신
@@ -124,6 +136,7 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log($"현재 레벨 : {curLevel}");
         Debug.Log($"현재 상태 : {curState}");
+        Debug.Log($"현재 모드 : {curMode}");
     }
 
 
@@ -182,6 +195,14 @@ public class PlayerController : MonoBehaviour
         }
 
         Debug.Log($"레벨업!! 현 레벨 : {curLevel}");
+    }
+
+
+    // 외부에서 게임 모드를 바꿀 수 있는 함수
+    public void ChangeGameMode(GameMode mode)
+    {
+        curMode = mode;
+        Debug.Log($"게임 모드 변경: {mode}");
     }
 
 }

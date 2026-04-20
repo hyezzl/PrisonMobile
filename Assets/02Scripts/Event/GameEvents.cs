@@ -52,4 +52,7 @@ public static class GameEvents
     //        this.eventID = eventID;
     //    }
     //}
+
+    // ¸ðµç Arrow²ø¶§
+    public struct ClearArrow { }
 }

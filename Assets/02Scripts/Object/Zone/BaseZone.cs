@@ -11,7 +11,7 @@ public abstract class BaseZone : MonoBehaviour, IActionTarget
 
     protected float lastInteractionTime;
 
-    
+
     public virtual void Interact(PlayerInteractHandler player)
     {
         // 쿨타임 체크

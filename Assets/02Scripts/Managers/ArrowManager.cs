@@ -53,11 +53,13 @@ public class ArrowManager : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Instance.Subscribe<GameEvents.StartEvent>(OnStartEvent);
+        EventBus.Instance.Subscribe<GameEvents.ClearArrow>(OnClearArrow);
     }
 
     private void OnDisable()
     {
         EventBus.Instance.Unsubscribe<GameEvents.StartEvent>(OnStartEvent);
+        EventBus.Instance.Unsubscribe<GameEvents.ClearArrow>(OnClearArrow);
     }
 
     private void Update()
@@ -115,5 +117,23 @@ public class ArrowManager : MonoBehaviour
         }
     }
 
+
+    private void OnClearArrow(GameEvents.ClearArrow evt) {
+        ClearArrows();
+    }
+
+
+    // 모든 화살표를 즉시 끄는 함수
+    public void ClearArrows()
+    {
+        foreach (var pair in arrows)
+        {
+            foreach (var data in pair.Value)
+            {
+                if (data.arrow != null) data.arrow.SetActive(false);
+            }
+        }
+        curArrows.Clear();
+    }
 
 }
