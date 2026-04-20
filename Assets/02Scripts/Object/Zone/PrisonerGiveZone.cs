@@ -52,6 +52,9 @@ public class PrisonerGiveZone : GiveZone
         {
             // 중복 로직 방지를 위해 DeployHandcuffs 하나로 통일하는 게 좋아요!
             DeployHandcuffs(items);
+
+            // 이벤트
+            CheckFirst();
         }
     }
 

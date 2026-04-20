@@ -11,6 +11,9 @@ public class TakeZone : BaseZone
 
     public Stack<GameObject> takeStack = new Stack<GameObject>(); // 가져갈 아이템들
 
+    // 이벤트 발행 변수
+    protected bool isFirst = true;
+
     protected override void PlayLogic(PlayerInteractHandler player)
     {
         // 플레이어에게 아이템을 하나씩 줌
@@ -22,6 +25,9 @@ public class TakeZone : BaseZone
             player.stackManager.AddStack(item, targetItemID);
 
             lastInteractionTime = Time.time;
+
+            // 처음 체크
+            CheckFirst();
         }
     }
 
@@ -40,5 +46,17 @@ public class TakeZone : BaseZone
         item.transform.DOLocalJump(targetPos, 0.7f, 1, 0.2f)
             .SetEase(Ease.OutQuad);
         item.transform.DOLocalRotate(Vector3.zero, 0.3f);
+    }
+
+
+    // 처음 납부되었을때 한번만 실행(이벤트)
+    protected void CheckFirst()
+    {
+        if (!isFirst || string.IsNullOrEmpty(eventID)) return;
+
+        // 이벤트 발행
+        EventBus.Instance.Publish(new GameEvents.StartEvent(eventID));
+
+        isFirst = false;
     }
 }

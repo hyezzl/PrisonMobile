@@ -17,6 +17,9 @@ public class GiveZone : BaseZone
     [HideInInspector]
     public List<GameObject> giveList = new List<GameObject>();
 
+    // 이벤트 발행 변수
+    protected bool isFirst = true;       // 처음 납부되었을때만 한번 실행하기위함
+
 
     protected override void PlayLogic(PlayerInteractHandler player)
     {
@@ -29,6 +32,8 @@ public class GiveZone : BaseZone
         {
             lastInteractionTime = Time.time;
             ProcessGiveItems(items);
+
+            CheckFirst();
         }
     }
 
@@ -81,5 +86,17 @@ public class GiveZone : BaseZone
         giveList.RemoveAt(lastIndex);
 
         return item;
+    }
+
+
+    // 처음 납부되었을때 한번만 실행(이벤트)
+    protected void CheckFirst()
+    {
+        if (!isFirst || string.IsNullOrEmpty(eventID)) return;
+
+        // 이벤트 발행
+        EventBus.Instance.Publish(new GameEvents.StartEvent(eventID));
+
+        isFirst = false;
     }
 }

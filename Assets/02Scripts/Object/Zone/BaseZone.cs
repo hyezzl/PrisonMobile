@@ -6,6 +6,7 @@ public abstract class BaseZone : MonoBehaviour, IActionTarget
 {
     [Header("Zone 설정")]
     public int targetItemID; // 이 Zone에서 취급하는 아이템 ID
+    public string eventID;      // 발행할 이벤트
     public float interactionDelay = 0.1f; // 상호작용 간격 (연속 납부/획득 속도)
 
     protected float lastInteractionTime;

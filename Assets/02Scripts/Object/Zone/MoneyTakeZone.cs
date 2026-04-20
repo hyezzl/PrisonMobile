@@ -21,6 +21,8 @@ public class MoneyTakeZone : TakeZone
         player.stackManager.AddStack(money, targetItemID);
 
         lastInteractionTime = Time.time;
+
+        CheckFirst();
     }
 
     public void AddMoneyToStack(GameObject money, Vector3 targetLocalPos, float delay)

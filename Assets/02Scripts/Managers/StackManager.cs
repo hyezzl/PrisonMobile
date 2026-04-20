@@ -61,6 +61,9 @@ public class StackManager : MonoBehaviour
 
     private PlayerController pc;
 
+    // 중복실행방지
+    private bool isFirst = true;
+
 
     // 최대값 확인
     public bool IsFull(int itemID)
@@ -75,7 +78,6 @@ public class StackManager : MonoBehaviour
         // 내 전체 스택에서 해당 ID를 가진 아이템 개수만 필터링해서 카운트
         int currentCount = stackRes.FindAll(x => x.itemID == itemID).Count;
 
-        //Debug.Log($"[체크] 레벨:{currentLevel} | 현재:{currentCount} | 최대:{finalMaxCount}");
 
         return currentCount >= finalMaxCount;
     }
@@ -115,6 +117,13 @@ public class StackManager : MonoBehaviour
 
         int currentTypeCount = stackRes.FindAll(x => x.itemID == itemID).Count;
         stackRes.Add(new StackData(obj, itemID));
+
+        //////////// 이벤트 발행////////////
+        if (itemID == stoneID && stackRes.FindAll(x => x.itemID == stoneID).Count >= 5 && isFirst)
+        {
+            isFirst = false;
+            EventBus.Instance.Publish(new GameEvents.StartEvent("E002"));
+        }
 
         Vector3 targetLocalPos = new Vector3(0, currentTypeCount * config.distY, 0);
 
@@ -170,7 +179,7 @@ public class StackManager : MonoBehaviour
         // 최종좌표
         Vector3 targetRealPos = targetPivot.TransformPoint(targetPos);
 
-        obj.transform.DOJump(targetRealPos, 1.2f, 1, flyDuration)
+        obj.transform.DOJump(targetRealPos, 0.8f, 1, flyDuration)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
