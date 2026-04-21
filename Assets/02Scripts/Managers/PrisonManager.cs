@@ -73,7 +73,7 @@ public class PrisonManager : MonoBehaviour
     private void UpdateUI()
     {
         if (text != null) {
-            text.text = $"{curPrisonerCnt} / {targetCount}";
+            text.text = $"{curPrisonerCnt} / 20";
         }
     }
 

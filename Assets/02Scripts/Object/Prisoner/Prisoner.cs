@@ -110,7 +110,10 @@ public class Prisoner : MonoBehaviour
                 rb.AddForce(transform.forward * 2f, ForceMode.Impulse);
 
                 // 이벤트 발행
-                EventBus.Instance.Publish(new GameEvents.AddPrisoner());
+                //EventBus.Instance.Publish(new GameEvents.AddPrisoner());
+                DOVirtual.DelayedCall(0.8f, () => {
+                    EventBus.Instance.Publish(new GameEvents.AddPrisoner());
+                });
             }
         });
     }
