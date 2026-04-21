@@ -3232,8 +3232,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.2155132, y: 1.4493678, z: 2.446273}
-  m_Center: {x: -0.079280615, y: 0.22468412, z: 1.0322598}
+  m_Size: {x: 2.2155132, y: 1.4493678, z: 2.2693849}
+  m_Center: {x: -0.079280615, y: 0.22468412, z: 0.9438157}
 --- !u!54 &446416344
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14612,8 +14612,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.784065, y: 1.4493678, z: 4.9256697}
-  m_Center: {x: -0.15898585, y: 0.22468412, z: 2.2719579}
+  m_Size: {x: 4.784065, y: 1.4493678, z: 2.0564709}
+  m_Center: {x: -0.15898585, y: 0.22468412, z: 0.83735836}
 --- !u!54 &1747314720
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -20505,7 +20505,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4416963338320951304}
   - component: {fileID: 4235228338976001362}
-  - component: {fileID: 4416963338320951312}
   - component: {fileID: 4416963338320951305}
   - component: {fileID: 4416963338320951307}
   - component: {fileID: 4416963338320951306}
@@ -21167,19 +21166,6 @@ MonoBehaviour:
   pivot02: {fileID: 1737591723}
   stoneID: 1001
   moneyID: 1003
---- !u!114 &4416963338320951312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3893331562174571186}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c14d2b3196b3dab45a563fa9c0fc1fad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  anim: {fileID: 4235228338976001362}
 --- !u!223 &4499368941198022998
 Canvas:
   m_ObjectHideFlags: 0

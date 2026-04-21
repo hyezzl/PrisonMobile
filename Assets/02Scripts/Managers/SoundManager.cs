@@ -28,6 +28,11 @@ public class SoundManager : Singleton<SoundManager>
     public Button muteBtn;
     public Sprite[] muteOrNot;
 
+    [Header("사운드 최적화")]
+    public int maxHitCount = 10;       // 한 프레임(또는 짧은 시간)에 허용할 최대 타격음 수
+    private int currentHitCount = 0;   // 현재 울리고 있는 타격음 수
+    private float lastPlayTime;        // 마지막 재생 시간 (아주 미세한 간격 부여용)
+
 
 
     // 현재 사운드 상태값

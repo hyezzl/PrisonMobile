@@ -56,6 +56,7 @@ public class PlayerInteractHandler : MonoBehaviour
     private IEnumerator InteractLoop()
     {
         isInteract = true;
+        pc.SetInteract(true);
 
         while (true) 
         {
@@ -68,7 +69,7 @@ public class PlayerInteractHandler : MonoBehaviour
             int curLevel = pc.GetLevel();
             float curSpeed = rangeSpeeds[curLevel];
 
-            pc.SetInteract(true);
+            //pc.SetInteract(true);
 
 
             // ///////////////////////////////////////////
@@ -97,12 +98,12 @@ public class PlayerInteractHandler : MonoBehaviour
                     if (col != null && col.gameObject.activeInHierarchy)
                     {
                         IActionTarget target = col.GetComponent<IActionTarget>();
-                        target?.Interact(this);
-
-                        // 사운드 (단일)
-                        SoundManager.Instance.PlaySFX((int)SFXType.Hit);
-
-                        yield return new WaitForSeconds(0.05f);
+                        if (target != null)
+                        {
+                            target.Interact(this);
+                            float randomDelay = Random.Range(0f, 0.03f);
+                            StartCoroutine(PlaySFXWithDelay((int)SFXType.Hit, randomDelay));
+                        }
                     }
                 }
             }
@@ -150,6 +151,12 @@ public class PlayerInteractHandler : MonoBehaviour
                 if (!curTargets.Contains(other))
                 {
                     curTargets.Add(other);
+
+                    if (!isInteract)
+                    {
+                        //StopAllCoroutines(); // 혹시 모를 중복 방지
+                        //StartCoroutine(InteractLoop());
+                    }
                 }
             }
         }
@@ -197,6 +204,13 @@ public class PlayerInteractHandler : MonoBehaviour
             }
         }
         return closest;
+    }
+
+    // 사운드 딜레이함수
+    private IEnumerator PlaySFXWithDelay(int sfxId, float delay)
+    {
+        if (delay > 0) yield return new WaitForSeconds(delay);
+        SoundManager.Instance.PlaySFX(sfxId);
     }
 
 }

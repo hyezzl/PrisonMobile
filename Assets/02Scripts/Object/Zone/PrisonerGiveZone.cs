@@ -26,6 +26,9 @@ public class PrisonerGiveZone : GiveZone
     private bool isDistributing = false;        // 현재 수갑 납부 중인지
     private bool isPrisonFull = false;
 
+    // 출발한 죄수
+    private int sentPrisonerCnt = 0;
+
     private void Start()
     {
         // 처음에 줄을 꽉 채워둡니다.
@@ -78,7 +81,10 @@ public class PrisonerGiveZone : GiveZone
             giveList.Add(item);
 
             // 사운드
-            StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, 0.08f));
+            if (i % 3 == 0) // 3개당 1번만 소리
+            {
+                StartCoroutine(PlaySFXWithDelay(SFXType.PickUp, i * 0.05f));
+            }
 
             int index = giveList.Count - 1;
 
@@ -143,27 +149,33 @@ public class PrisonerGiveZone : GiveZone
                 }
             }
 
-            // 3. 다 채웠으면 다음 죄수로 교체
+            // 다음 죄수로 교체
             if (currentPrisoner.isSatisfied)
             {
-                yield return new WaitForSeconds(0.5f);      // 잠깐 여유둠
+                yield return new WaitForSeconds(0.2f);
 
                 waitingPrisoners.RemoveAt(0);
 
-                if (isPrisonFull)
+
+                // 자체 카운트로 분기
+                if (sentPrisonerCnt < 20)
                 {
-                    currentPrisoner.StopAtCorner(cornorPivot);
-                }
-                else 
-                { 
+                    sentPrisonerCnt++;
                     currentPrisoner.GoToPrison(cornorPivot, prison);
+
+                    // 카운트 끝이나, 도착한 후에 이벤트 발생
+                }
+                else
+                {
+                    // 21명째부터는 무조건 코너행
+                    currentPrisoner.StopAtCorner(cornorPivot);
                 }
 
 
                 SpawnNewPrisoner();
                 SortPrisoners();
 
-                yield return new WaitForSeconds(2f); // 줄 당겨지는 시간 대기
+                yield return new WaitForSeconds(1f); // 줄 당겨지는 시간 대기
 
                 if (waitingPrisoners.Count > 0)
                     waitingPrisoners[0].ui.Show();
